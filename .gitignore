@@ -1,0 +1,35 @@
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+*.ipr
+*.iws
+
+# Generated localization
+lib/l10n/generated/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Native platform folders — generated locally via `flutter create .`,
+# not part of this repo's source of truth. Remove these lines once
+# you actually commit the native folders (they're normally checked in
+# for a real Flutter app; kept ignored here only because this repo's
+# history starts without them).
+/android/
+/ios/
+/linux/
+/macos/
+/windows/
+/web/
+
+# Misc
+.DS_Store
+*.log
