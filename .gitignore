@@ -33,3 +33,7 @@ lib/l10n/generated/
 # Misc
 .DS_Store
 *.log
+
+# Internal dev notes, not part of the public project
+HANDOFF.md
+SPEC.md

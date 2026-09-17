@@ -1,121 +1,133 @@
 # Auditra
 
-Desktop trade analytics dashboard for Hyperliquid wallets. See `SPEC.md`
-for the phased roadmap.
+Desktop trade analytics dashboard for Hyperliquid wallets. Point it at a
+public wallet address and it builds a full picture of your trading: PnL,
+win rate, drawdown, time patterns, behavior, fees, and rule breaches. No
+API keys, no account, no signing. It only reads public on-chain data.
 
-## Setup on Fedora
+Built as an improved, standalone version of TradeAudit, targeting
+Hyperliquid instead of centralized exchanges.
 
-Install the Linux desktop build dependencies:
+## Download
 
-```
-sudo dnf install clang cmake ninja-build gtk3-devel
-```
+Prebuilt binaries for Linux, Windows and macOS are on the
+[Releases page](https://github.com/MrCrypPrivacy/Auditra/releases). Download
+the one for your OS, unzip it, and run it. No Flutter, no build step.
 
-Install Flutter (if not already installed):
+## Screenshots
 
-```
-sudo dnf install flutter
-```
+![Overview: stats, cumulative PnL, activity, PnL by day, win rate by hour and weekday](screenshots/overview-1.png)
 
-or follow the manual install at https://docs.flutter.dev/get-started/install/linux
-if the Fedora package is outdated.
+![Overview: direction, trader profile, streaks, recovery, calendar, most traded pairs](screenshots/overview-2.png)
 
-Enable Linux desktop support and verify the setup:
+## Features
 
-```
-flutter config --enable-linux-desktop
-flutter doctor
-```
+- PnL total, win rate, expectancy, risk/reward ratio, max drawdown ($ and %)
+- Daily activity, PnL by day, win rate by hour and by weekday, long vs
+  short breakdown
+- Trader profile (scalper, day trader, swing) reconstructed from position
+  duration, winning and losing streaks, recovery rate after a loss
+- Pair ranking: most traded, most and least profitable
+- Fees: total, daily, cumulative, PnL-per-fee ratio, monthly summary
+- Custom trading rules (no trading on a given weekday, max trades per day,
+  no trading in a time range) with breach detection against your real
+  history and a proactive alert on the dashboard
+- Multi-wallet support, each with its own history, notes, and rules
+- Live sync via Hyperliquid's WebSocket feed, plus manual sync
+- Per-trade notes, JSON/CSV export and import
+- 10 languages: English, Spanish, French, German, Italian, Portuguese,
+  Russian, Arabic, Mandarin, Japanese
 
-## Run
+## Build from source
 
-```
+Only needed if you want to modify the code. Most people should just use
+the [prebuilt binaries](#download) above.
+
+- Flutter 3.3 or newer, with desktop support enabled
+- On Linux: `clang`, `cmake`, `ninja-build`, `gtk3-devel` (or your
+  distribution's equivalent)
+
+```bash
+git clone https://github.com/MrCrypPrivacy/Auditra.git
+cd Auditra
+flutter create --platforms=linux,windows,macos .
 flutter pub get
 flutter run -d linux
 ```
 
-`flutter pub get` also generates the localization classes under
-`lib/l10n/generated/` (the `generate: true` flag in `pubspec.yaml` and
-`l10n.yaml` handle this automatically).
+`flutter create` fills in the native platform folders, which aren't part
+of this repository's history (see `.gitignore`). `flutter pub get` also
+generates the localization classes under `lib/l10n/generated/`.
 
-## Status
+Tests:
 
-Phase 1 is implemented end to end, plus several extras beyond the original
-scope, added per your requests in this session:
+```bash
+flutter test
+```
 
-- **Multi-wallet**: name + connect several Hyperliquid wallets, switch
-  between them from Settings. Each wallet's fills, notes and rules are
-  stored separately, keyed by address.
-- **Live auto-sync**: subscribes to Hyperliquid's WebSocket (`userFills`
-  channel) and merges new fills as they happen, no manual action needed.
-  A "Sync now" button and a green "Live" indicator sit in the top bar.
-- **Drawdown**: max drawdown in $ and % now show in the stats panel,
-  computed from the peak of the cumulative PnL curve.
-- **Trading rules**: define rules (no trading on a weekday, max trades
-  per day, no trading in an hour range) and see a list of breaches
-  against your actual trade history.
-- **Trade notes**: a Trades tab lists every fill; tap the note icon to
-  attach a free-text note to any trade.
-- **Export/Import**: JSON export/import of a wallet's fill history via
-  native file dialogs (`file_selector`), for backup or restoring data.
-- **Period selector**: filter the Overview by All/Today/Week/Month/Year.
+## Linux desktop icon
 
-`lib/features/dashboard/application/time_pattern_metrics.dart`,
-`behavior_metrics.dart` and `fee_metrics.dart` are still stubbed with
-`UnimplementedError` — Phases 2-4 proper (hourly/weekday patterns, trader
-profile, streaks, pair ranking, fees) are not built yet.
+Flutter doesn't embed a taskbar icon into the Linux build the way it does
+for Windows and macOS. Run `linux/install.sh` once (after your first
+release build) to install Auditra's icon and a proper `.desktop` entry for
+your user, pointing at the right paths on your machine:
 
-None of this has been run through a real Flutter build from this
-environment (no Flutter SDK, no network access here) — it's all been
-reviewed by hand and cross-checked for import/reference consistency, but
-please treat the first `flutter pub get && flutter run -d linux` as the
-real test and report back anything that doesn't compile.
+```bash
+chmod +x linux/install.sh
+./linux/install.sh
+```
 
-## Window title bar
+Safe to run again after every update. To remove it:
 
-The native OS title bar is now hidden (`window_manager` + `TitleBarStyle.hidden`
-in `main.dart`) and replaced with a compact 32px bar drawn by the app itself
-(`lib/shared/widgets/app_title_bar.dart`), showing "AUDITRA" in uppercase with
-our own minimize/maximize/close buttons. This also fixes the oversized native
-title bar you saw in the first build.
+```bash
+./linux/uninstall.sh
+```
 
-## App icon
+This never touches your wallets, trade history, notes, or rules — only
+the program itself. Pass `--with-data` if you also want to wipe those.
 
-This is the one piece I can't fix from here: the taskbar/window icon comes
-from files generated by `flutter create .` (`linux/CMakeLists.txt`,
-`my_application.cc`, etc.), which don't exist in this zip since I never ran
-that command myself — you generated them locally.
+## Data and privacy
 
-To set the real icon after running `flutter create .`:
+Auditra has no backend and no database of its own. All data (fills,
+notes, rules, wallet list, preferences) is stored locally as JSON files
+in your OS's application support directory, one file per wallet and data
+type. Nothing is uploaded anywhere except the read-only requests to
+Hyperliquid's public API and WebSocket feed for the wallet address you
+enter.
 
-1. Export `assets/logo.svg` to a PNG (e.g. 256x256) — any online SVG-to-PNG
-   converter works, or `inkscape assets/logo.svg -o linux/icon.png -w 256`
-   if you have Inkscape installed.
-2. Open `linux/runner/my_application.cc` and look for the block that creates
-   the GTK window/icon; add (or replace the placeholder) with:
-   ```c
-   gtk_window_set_icon_from_file(window, "linux/icon.png", NULL);
-   ```
-3. Re-run `flutter run -d linux`.
+## Tech stack
 
-If this doesn't match exactly what your generated `my_application.cc` looks
-like, paste it here and I'll give you the exact edit.
+- Flutter Desktop, no third-party charting library: every chart is a
+  hand-written `CustomPainter`
+- `window_manager` for the custom title bar and window sizing
+- `web_socket_channel` for the live Hyperliquid fills subscription
+- `file_selector` for native export/import dialogs
+- `path_provider` for local JSON storage
 
-## Theming
+## Project structure
 
-Two themes ship out of the box, defined in `lib/core/theme/app_theme.dart`:
+```
+lib/
+├── app.dart                 # MaterialApp, theme/locale controllers, title bar
+├── main.dart                 # bootstrap, window setup
+├── core/
+│   ├── network/               # Hyperliquid REST and WebSocket clients, export/import
+│   ├── storage/               # local JSON stores, reset service
+│   ├── rules/                 # trading rules and breach evaluation
+│   ├── filters/                # period filter (all/today/week/month/year)
+│   ├── format/                 # number and duration formatting
+│   ├── theme/                  # themes and theme controller
+│   └── l10n/                   # locale controller and translation files
+├── features/
+│   ├── onboarding/              # wallet input, launch flow
+│   ├── settings/                # settings screen
+│   └── dashboard/
+│       ├── domain/               # Fill model
+│       ├── application/          # metrics computation, cached by fingerprint
+│       └── presentation/         # screens and chart widgets
+└── shared/widgets/              # sidebar, title bar, reusable buttons/selectors
+```
 
-- `AppTheme.brand` — Auditra's own look, built around the logo accent
-  (#CCFF33 on near-black).
-- `AppTheme.arbiter` — a placeholder Arbiter-style dark/blue palette,
-  pending the real values once source access is available.
+## License
 
-The palette icon on the dashboard cycles between them at runtime via
-`ThemeController.cycle()`. Adding a third theme is just adding another
-`AppTheme` instance to `AppTheme.all`.
-
-## Localization
-
-10 languages ship in `lib/core/l10n/`: English, Spanish, French, German,
-Italian, Portuguese, Russian, Arabic, Mandarin and Japanese. Arabic renders
-right-to-left automatically via Flutter's localization system.
+MIT. See `LICENSE`.
