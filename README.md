@@ -43,7 +43,7 @@ Hyperliquid instead of centralized exchanges.
 ## Build from source
 
 Only needed if you want to modify the code. Most people should just use
-the [prebuilt binaries](#download) above.
+the prebuilt binaries above.
 
 - Flutter 3.3 or newer, with desktop support enabled
 - On Linux: `clang`, `cmake`, `ninja-build`, `gtk3-devel` (or your
@@ -85,7 +85,7 @@ Safe to run again after every update. To remove it:
 ./linux/uninstall.sh
 ```
 
-This never touches your wallets, trade history, notes, or rules — only
+This never touches your wallets, trade history, notes, or rules, only
 the program itself. Pass `--with-data` if you also want to wipe those.
 
 ## Data and privacy
