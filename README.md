@@ -10,9 +10,11 @@ Hyperliquid instead of centralized exchanges.
 
 ## Download
 
-Prebuilt binaries for Linux, Windows and macOS are on the
-[Releases page](https://github.com/MrCrypPrivacy/Auditra/releases). Download
-the one for your OS, unzip it, and run it. No Flutter, no build step.
++ A prebuilt Linux binary is on the
++ [Releases page](https://github.com/MrCrypPrivacy/Auditra/releases). Download
++ it, unzip it, and run it. No Flutter, no build step.
++
++ Windows and macOS builds are coming later.
 
 ## Screenshots
 
