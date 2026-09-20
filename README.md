@@ -23,7 +23,7 @@ Prebuilt binaries for Linux, Windows and macOS are on the
 
 - PnL total, win rate, expectancy, risk/reward ratio, max drawdown ($ and %)
 - Daily activity, PnL by day, win rate by hour and by weekday, long vs
-  short breakdown
+  short breakdown 
 - Trader profile (scalper, day trader, swing) reconstructed from position
   duration, winning and losing streaks, recovery rate after a loss
 - Pair ranking: most traded, most and least profitable
